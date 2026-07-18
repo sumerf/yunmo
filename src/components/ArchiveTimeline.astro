@@ -1,0 +1,101 @@
+---
+const { posts = [] } = Astro.props;
+---
+
+<div class="timeline">
+  {posts.map((post) => (
+    <a class="item" href={`/posts/${post.slug}/`}>
+      <time class="date">{post.data.pubDate.toLocaleDateString("zh-CN")}</time>
+      <span class="dot" aria-hidden="true"></span>
+      <div class="content">
+        <strong>{post.data.title}</strong>
+        <span class="muted">{post.data.tags.join(" · ")}</span>
+      </div>
+    </a>
+  ))}
+</div>
+
+<style>
+  .timeline {
+    position: relative;
+    display: grid;
+    gap: 0;
+    padding-left: 6px;
+  }
+  .timeline::before {
+    content: "";
+    position: absolute;
+    left: 157px;
+    top: 8px;
+    bottom: 8px;
+    width: 2px;
+    background: linear-gradient(180deg, rgba(255, 182, 204, 0.85), rgba(255, 255, 255, 0.18));
+  }
+  .item {
+    display: grid;
+    grid-template-columns: 130px 28px minmax(0, 1fr);
+    gap: 18px;
+    align-items: start;
+    padding: 18px 0;
+  }
+  .date {
+    padding-top: 2px;
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+  .dot {
+    width: 14px;
+    height: 14px;
+    margin-top: 4px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ff9cbc, #ffd4e0);
+    box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.42);
+    position: relative;
+    z-index: 1;
+  }
+  .content {
+    display: grid;
+    gap: 6px;
+    padding: 14px 16px;
+    border-radius: 20px;
+    background: var(--card);
+    border: 1px solid var(--card-border);
+  }
+  strong {
+    font-size: 1.05rem;
+  }
+  @media (max-width: 720px) {
+    .timeline {
+      padding-left: 0;
+    }
+    .timeline::before {
+      left: 6px;
+      top: 10px;
+      bottom: 10px;
+    }
+    .item {
+      grid-template-columns: 16px minmax(0, 1fr);
+      gap: 12px;
+      padding: 16px 0;
+    }
+    .date {
+      grid-column: 2;
+      grid-row: 1;
+      padding-top: 0;
+      font-size: 0.88rem;
+    }
+    .dot {
+      grid-column: 1;
+      grid-row: 1 / span 2;
+      width: 12px;
+      height: 12px;
+      margin-top: 4px;
+      box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.38);
+    }
+    .content {
+      grid-column: 2;
+      grid-row: 2;
+      padding: 12px 14px;
+    }
+  }
+</style>

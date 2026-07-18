@@ -1,0 +1,138 @@
+---
+import { navLinks } from "../config/site";
+---
+
+<header class="site-header glass shell">
+  <nav>
+    {navLinks.map((item) => <a href={item.href}>{item.label}</a>)}
+    <button class="theme-toggle" id="theme-toggle" type="button" aria-label="切换主题模式">
+      <span class="theme-icon theme-icon-system" aria-hidden="true">
+        <svg viewBox="0 0 24 24">
+          <rect x="4.5" y="5.5" width="15" height="11" rx="3" />
+          <path d="M9 19h6" />
+          <path d="M12 8.5v5" />
+          <path d="M9.5 11h5" />
+        </svg>
+      </span>
+      <span class="theme-icon theme-icon-light" aria-hidden="true">
+        <svg viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="4.2" />
+          <path d="M12 2.8v2.4" />
+          <path d="M12 18.8v2.4" />
+          <path d="M21.2 12h-2.4" />
+          <path d="M5.2 12H2.8" />
+          <path d="m18.5 5.5-1.7 1.7" />
+          <path d="m7.2 16.8-1.7 1.7" />
+          <path d="m18.5 18.5-1.7-1.7" />
+          <path d="M7.2 7.2 5.5 5.5" />
+        </svg>
+      </span>
+      <span class="theme-icon theme-icon-dark" aria-hidden="true">
+        <svg viewBox="0 0 24 24">
+          <path d="M15.2 4.8a7.6 7.6 0 1 0 4 14.1A8.5 8.5 0 0 1 15.2 4.8Z" />
+        </svg>
+      </span>
+    </button>
+  </nav>
+</header>
+
+<style>
+  .site-header {
+    margin-top: 18px;
+    padding: 16px 22px;
+    border-radius: 26px;
+    position: sticky;
+    top: 14px;
+    z-index: 20;
+    display: grid;
+    place-items: center;
+    width: fit-content;
+    max-width: calc(100% - 32px);
+  }
+  nav {
+    display: flex;
+    gap: 28px;
+    color: var(--muted);
+    font-size: 0.98rem;
+    align-items: center;
+    justify-content: center;
+  }
+  nav a:hover {
+    color: var(--accent-strong);
+  }
+  .theme-toggle {
+    width: 40px;
+    height: 40px;
+    margin-left: 4px;
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 999px;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.68), rgba(255, 255, 255, 0.28)),
+      rgba(255, 255, 255, 0.18);
+    color: var(--text);
+    display: inline-grid;
+    place-items: center;
+    cursor: pointer;
+    flex: 0 0 auto;
+    padding: 0;
+    box-shadow:
+      0 10px 24px rgba(30, 41, 59, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(18px) saturate(155%);
+    -webkit-backdrop-filter: blur(18px) saturate(155%);
+    transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+  }
+  .theme-toggle:hover {
+    border-color: rgba(255, 255, 255, 0.22);
+    transform: translateY(-1px);
+  }
+  .theme-icon {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    opacity: 0;
+    transform: scale(0.82);
+    transition: opacity 160ms ease, transform 160ms ease;
+  }
+  .theme-icon svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  :global(html[data-resolved-theme="dark"] .theme-toggle) {
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04)),
+      rgba(26, 30, 38, 0.44);
+    border-color: rgba(255, 255, 255, 0.14);
+    box-shadow:
+      0 12px 28px rgba(0, 0, 0, 0.22),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+  :global(html[data-theme="system"] .theme-icon-system),
+  :global(html[data-theme="light"] .theme-icon-light),
+  :global(html[data-theme="dark"] .theme-icon-dark) {
+    opacity: 1;
+    transform: scale(1);
+  }
+  @media (max-width: 720px) {
+    .site-header {
+      border-radius: 22px;
+      width: min(100%, 360px);
+      padding: 14px 18px;
+    }
+    nav {
+      flex-wrap: wrap;
+      gap: 18px 22px;
+    }
+    .theme-toggle {
+      width: 38px;
+      height: 38px;
+    }
+  }
+</style>

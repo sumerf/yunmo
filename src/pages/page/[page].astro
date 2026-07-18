@@ -1,0 +1,25 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PostCard from "../../components/PostCard.astro";
+import Pagination from "../../components/Pagination.astro";
+import { getAllPosts, POSTS_PAGE_SIZE } from "../../utils/content";
+
+export async function getStaticPaths({ paginate }) {
+  const posts = await getAllPosts();
+
+  return paginate(posts, {
+    pageSize: POSTS_PAGE_SIZE
+  });
+}
+
+const { page } = Astro.props;
+---
+
+<BaseLayout title={`Yunmo - 第 ${page.currentPage} 页`}>
+  <div class="content-wrap">
+    <section class="content-stack">
+      {page.data.map((post) => <PostCard post={post} />)}
+    </section>
+    <Pagination currentPage={page.currentPage} totalPages={page.lastPage} baseUrl="/" />
+  </div>
+</BaseLayout>

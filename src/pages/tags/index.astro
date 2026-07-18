@@ -1,0 +1,42 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getAllPosts, getAllTags } from "../../utils/content";
+
+const posts = await getAllPosts();
+const tags = getAllTags(posts);
+---
+
+<BaseLayout title="Tags">
+  <div class="content-wrap">
+    <section class="glass panel">
+      <h1>标签</h1>
+      <div class="tags">
+        {tags.map((tag) => <a href={`/tags/${encodeURIComponent(tag)}/`}>#{tag}</a>)}
+      </div>
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  .panel {
+    padding: 28px;
+    border-radius: 36px;
+  }
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .tags a {
+    padding: 10px 14px;
+    border-radius: 999px;
+    background: rgba(232, 93, 142, 0.1);
+    color: var(--accent-strong);
+  }
+  @media (max-width: 720px) {
+    .panel {
+      padding: 22px;
+      border-radius: 22px;
+    }
+  }
+</style>

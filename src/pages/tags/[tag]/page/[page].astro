@@ -1,0 +1,35 @@
+---
+import BaseLayout from "../../../../layouts/BaseLayout.astro";
+import PostCard from "../../../../components/PostCard.astro";
+import Pagination from "../../../../components/Pagination.astro";
+import { getAllPosts, getAllTags, getPostsByTag, TAG_POSTS_PAGE_SIZE } from "../../../../utils/content";
+
+export async function getStaticPaths({ paginate }) {
+  const posts = await getAllPosts();
+  const tags = getAllTags(posts);
+
+  return tags.flatMap((tag) =>
+    paginate(
+      getPostsByTag(posts, tag),
+      {
+        pageSize: TAG_POSTS_PAGE_SIZE,
+        params: { tag: encodeURIComponent(tag) },
+        props: { tag }
+      }
+    )
+  );
+}
+
+const { page, tag } = Astro.props;
+const tagBaseUrl = `/tags/${encodeURIComponent(tag)}`;
+---
+
+<BaseLayout title={`#${tag} - 第 ${page.currentPage} 页`}>
+  <div class="content-wrap">
+    <section class="content-stack">
+      <h1 class="section-title">#{tag}</h1>
+      {page.data.map((post) => <PostCard post={post} />)}
+    </section>
+    <Pagination currentPage={page.currentPage} totalPages={page.lastPage} baseUrl={tagBaseUrl} />
+  </div>
+</BaseLayout>

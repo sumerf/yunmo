@@ -1,0 +1,19 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="404">
+  <section class="glass notfound">
+    <h1>404</h1>
+    <p class="muted">页面不见了，去首页看看吧。</p>
+    <a href="/">返回首页</a>
+  </section>
+</BaseLayout>
+
+<style>
+  .notfound {
+    padding: 32px;
+    border-radius: 36px;
+    text-align: center;
+  }
+</style>

@@ -1,0 +1,54 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import ArchiveTimeline from "../components/ArchiveTimeline.astro";
+import Pagination from "../components/Pagination.astro";
+import { getAllPosts, POSTS_PAGE_SIZE } from "../utils/content";
+
+const posts = await getAllPosts();
+const featuredPosts = posts.slice(0, POSTS_PAGE_SIZE);
+const totalPages = Math.ceil(posts.length / POSTS_PAGE_SIZE);
+---
+
+<BaseLayout title="归档">
+  <div class="content-wrap">
+    <section class="archive glass">
+      <div class="head">
+        <h1>归档</h1>
+        <p class="muted">{posts.length} 篇内容</p>
+      </div>
+      <ArchiveTimeline posts={featuredPosts} />
+    </section>
+    <Pagination currentPage={1} totalPages={totalPages} baseUrl="/archives" />
+  </div>
+</BaseLayout>
+
+<style>
+  .archive {
+    padding: 28px 28px 34px;
+    border-radius: 30px;
+    display: grid;
+    gap: 20px;
+  }
+  .head {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+  h1 {
+    margin: 0;
+  }
+  @media (max-width: 720px) {
+    .archive {
+      padding: 20px 20px 26px;
+      border-radius: 22px;
+      gap: 16px;
+    }
+    .head {
+      align-items: start;
+      flex-direction: column;
+      margin-bottom: 10px;
+    }
+  }
+</style>

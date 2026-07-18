@@ -1,0 +1,117 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PostCard from "../components/PostCard.astro";
+import Pagination from "../components/Pagination.astro";
+import { siteConfig } from "../config/site";
+import { getAllPosts, POSTS_PAGE_SIZE } from "../utils/content";
+
+const posts = await getAllPosts();
+const featuredPosts = posts.slice(0, POSTS_PAGE_SIZE);
+const totalPages = Math.ceil(posts.length / POSTS_PAGE_SIZE);
+const quoteMode = siteConfig.homeQuote.mode === "local" ? "local" : "api";
+---
+
+<BaseLayout title={siteConfig.title}>
+  <div class="posts-wrap">
+    <section class="hero glass">
+      <p class="eyebrow">
+        <a href="https://github.com/sumerf/yunmo" target="_blank" rel="noopener noreferrer">Yunmo</a>
+      </p>
+      <h1 id="quote-text">{quoteMode === "local" ? siteConfig.homeQuote.text : ""}</h1>
+      <p class="muted" id="quote-author">{quoteMode === "local" ? siteConfig.homeQuote.author : ""}</p>
+    </section>
+
+    <div class="posts">
+      {featuredPosts.map((post) => <PostCard post={post} />)}
+    </div>
+
+    <Pagination currentPage={1} totalPages={totalPages} baseUrl="/" />
+  </div>
+</BaseLayout>
+
+<script is:inline define:vars={{ quoteMode, quoteApi: siteConfig.homeQuote.api }}>
+  const quoteTextEl = document.getElementById("quote-text");
+  const quoteAuthorEl = document.getElementById("quote-author");
+
+  const normalizeAuthor = (fromWho, from) => {
+    const author = fromWho || from || "一言";
+    return author.startsWith("——") ? author : `—— ${author}`;
+  };
+
+  if (quoteMode === "api") {
+    fetch(quoteApi, {
+      headers: {
+        Accept: "application/json"
+      }
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`Quote API request failed: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        if (!data?.hitokoto) return;
+        if (quoteTextEl) quoteTextEl.textContent = data.hitokoto;
+        if (quoteAuthorEl) quoteAuthorEl.textContent = normalizeAuthor(data.from_who, data.from);
+      })
+      .catch(() => {
+        // Leave the area empty when the API is unavailable.
+      });
+  } else if (quoteAuthorEl?.textContent) {
+    quoteAuthorEl.textContent = normalizeAuthor(quoteAuthorEl.textContent, "");
+  }
+</script>
+
+<style>
+  .posts-wrap {
+    position: relative;
+    width: min(860px, 100%);
+    margin: 0 auto;
+  }
+  .hero {
+    padding: 32px;
+    border-radius: 30px;
+    margin-bottom: 20px;
+    min-height: 200px;
+    display: grid;
+    align-content: end;
+    user-select: none;
+    -webkit-user-select: none;
+    background:
+      radial-gradient(circle at 82% 20%, rgba(255, 220, 230, 0.8), transparent 0 18%),
+      radial-gradient(circle at 14% 12%, rgba(255, 255, 255, 0.78), transparent 0 24%),
+      linear-gradient(135deg, rgba(255, 255, 255, 0.5), rgba(255, 236, 243, 0.24));
+  }
+  .eyebrow {
+    color: var(--accent-strong);
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    font-size: 0.8rem;
+  }
+  .eyebrow a {
+    color: inherit;
+  }
+  h1 {
+    margin: 0;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    line-height: 1.12;
+  }
+  .posts {
+    display: grid;
+    gap: 16px;
+  }
+  :global(.posts-wrap .pagination) {
+    margin-top: 20px;
+  }
+  @media (max-width: 720px) {
+    .hero {
+      min-height: 170px;
+      padding: 22px;
+      border-radius: 22px;
+    }
+    :global(.posts-wrap .pagination) {
+      margin-top: 16px;
+    }
+  }
+</style>

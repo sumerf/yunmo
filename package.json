@@ -1,0 +1,20 @@
+{
+  "name": "yunmo",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check:links": "node scripts/check-links.mjs",
+    "check:seo": "node scripts/check-seo.mjs",
+    "verify": "npm run build && npm run check:seo && npm run check:links",
+    "backup": "node scripts/backup-tag.mjs",
+    "indexnow": "node scripts/indexnow-submit.mjs"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.7.3",
+    "astro": "^5.11.0"
+  }
+}

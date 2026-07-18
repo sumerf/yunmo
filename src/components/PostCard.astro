@@ -1,0 +1,109 @@
+---
+const { post } = Astro.props;
+---
+
+<article class="card glass">
+  <div class="card-copy">
+    <div class="meta">
+      <time>{post.data.pubDate.toLocaleDateString("zh-CN")}</time>
+      <div class="tags">
+        {post.data.tags.map((tag) => (
+          <a href={`/tags/${encodeURIComponent(tag)}/`}>#{tag}</a>
+        ))}
+      </div>
+    </div>
+    <h2><a href={`/posts/${post.slug}/`}>{post.data.title}</a></h2>
+    <p>{post.data.description}</p>
+    <a class="read-more" href={`/posts/${post.slug}/`}>继续阅读</a>
+  </div>
+  {post.data.heroImage && (
+    <a class="cover" href={`/posts/${post.slug}/`} aria-label={`打开 ${post.data.title}`}>
+      <img src={post.data.heroImage} alt={post.data.title} loading="lazy" />
+    </a>
+  )}
+</article>
+
+<style>
+  .card {
+    padding: 18px;
+    border-radius: 24px;
+    user-select: text;
+    -webkit-user-select: text;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 112px;
+    gap: 16px;
+    align-items: start;
+  }
+  .card-copy {
+    min-width: 0;
+  }
+  .cover {
+    display: block;
+    width: 112px;
+    flex: 0 0 auto;
+    border-radius: 16px;
+    overflow: hidden;
+    aspect-ratio: 1 / 1;
+    background: rgba(255, 255, 255, 0.18);
+  }
+  .cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    transition: transform 220ms ease;
+  }
+  .card:hover .cover img {
+    transform: scale(1.02);
+  }
+  .meta {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    font-size: 0.92rem;
+    align-items: center;
+  }
+  time {
+    color: var(--muted);
+  }
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .tags a {
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.18);
+    color: var(--accent-strong);
+    font-size: 0.84rem;
+    line-height: 1;
+  }
+  h2 {
+    margin: 12px 0 10px;
+    font-size: 1.35rem;
+    line-height: 1.35;
+  }
+  p {
+    margin: 0;
+    color: var(--muted);
+    line-height: 1.75;
+  }
+  .read-more {
+    display: inline-flex;
+    margin-top: 18px;
+    color: var(--accent-strong);
+    font-weight: 600;
+  }
+  @media (max-width: 720px) {
+    .card {
+      padding: 16px;
+      gap: 12px;
+      grid-template-columns: minmax(0, 1fr) 88px;
+    }
+    .cover {
+      width: 88px;
+      border-radius: 14px;
+    }
+  }
+</style>

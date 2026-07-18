@@ -1,0 +1,454 @@
+---
+import BaseLayout from "./BaseLayout.astro";
+import { siteConfig } from "../config/site";
+import { getSiteBase, toAbsoluteUrl } from "../utils/site";
+
+const {
+  title,
+  description,
+  pubDate,
+  updatedDate,
+  tags = [],
+  headings = [],
+  heroImage,
+  ogImage = siteConfig.ogImage
+} = Astro.props;
+
+const siteBase = getSiteBase(Astro.site);
+const canonical = toAbsoluteUrl(Astro.url.pathname, siteBase);
+const tocHeadings = headings.filter((heading) => heading.depth >= 2 && heading.depth <= 3);
+const articleJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  headline: title,
+  description,
+  datePublished: pubDate,
+  dateModified: updatedDate ?? pubDate,
+  author: {
+    "@type": "Person",
+    name: siteConfig.author
+  },
+  mainEntityOfPage: canonical,
+  image: toAbsoluteUrl(ogImage, siteBase)
+};
+---
+
+<BaseLayout title={title} description={description} image={ogImage} type="article" jsonLd={articleJsonLd}>
+  <div class="post-shell">
+    <article class="glass post">
+      {heroImage && (
+        <div class="post-cover">
+          <img src={heroImage} alt={title} loading="eager" />
+        </div>
+      )}
+      <div class="meta">
+        <time>{pubDate.toLocaleDateString("zh-CN")}</time>
+        <div class="tags">
+          {tags.map((tag) => (
+            <a href={`/tags/${encodeURIComponent(tag)}/`}>#{tag}</a>
+          ))}
+        </div>
+      </div>
+      <h1>{title}</h1>
+      <p class="lede">{description}</p>
+      <div class="content" id="post-content">
+        <slot />
+      </div>
+    </article>
+
+    {tocHeadings.length > 0 && (
+      <aside class="glass side-card toc-card">
+        <h2>目录</h2>
+        <nav class="toc">
+          {tocHeadings.map((heading) => (
+            <a class={`depth-${heading.depth}`} data-toc-link href={`#${heading.slug}`}>{heading.text}</a>
+          ))}
+        </nav>
+      </aside>
+    )}
+
+    <div class="lightbox" id="image-lightbox" aria-hidden="true">
+      <button class="lightbox-close" id="lightbox-close" type="button" aria-label="关闭预览">×</button>
+      <button class="lightbox-nav prev" id="lightbox-prev" type="button" aria-label="上一张">‹</button>
+      <img id="lightbox-image" alt="" />
+      <button class="lightbox-nav next" id="lightbox-next" type="button" aria-label="下一张">›</button>
+    </div>
+  </div>
+  <script is:inline src="/scripts/post-ui.js"></script>
+</BaseLayout>
+
+<style>
+  .post-shell {
+    width: min(1180px, 100%);
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: minmax(0, 860px) 280px;
+    gap: 18px;
+    align-items: start;
+  }
+  .post {
+    padding: 34px;
+    border-radius: 30px;
+  }
+  .post-cover {
+    margin: -34px -34px 24px;
+    border-radius: 30px 30px 24px 24px;
+    overflow: hidden;
+    aspect-ratio: 16 / 8.8;
+    background: rgba(255, 255, 255, 0.16);
+  }
+  .post-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  h1 {
+    margin: 0.25rem 0 0.75rem;
+    font-size: clamp(2rem, 5vw, 3.6rem);
+  }
+  .meta, .lede {
+    color: var(--muted);
+  }
+  .meta {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .meta time {
+    color: var(--muted);
+  }
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .tags a {
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.18);
+    color: var(--accent-strong);
+    font-size: 0.84rem;
+    line-height: 1;
+  }
+  .content {
+    line-height: 1.95;
+    font-size: 1.05rem;
+  }
+  .content :global(p code),
+  .content :global(li code),
+  .content :global(blockquote code) {
+    padding: 0.18rem 0.45rem;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.42);
+    border: 1px solid rgba(255, 255, 255, 0.36);
+    color: var(--accent-strong);
+    font-size: 0.92em;
+    word-break: break-word;
+  }
+  .content :global(pre),
+  .content :global(pre.astro-code) {
+    position: relative;
+    margin: 1.35rem 0;
+    padding: 50px 20px 18px;
+    border-radius: 22px;
+    background:
+      linear-gradient(180deg, rgba(18, 18, 20, 0.98), rgba(7, 7, 9, 0.98)),
+      #080809 !important;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.04),
+      0 16px 34px rgba(0, 0, 0, 0.18);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .content :global(pre code),
+  .content :global(pre.astro-code code) {
+    display: block;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    color: rgba(255, 251, 253, 0.96) !important;
+    font-size: 0.92rem;
+    line-height: 1.8;
+  }
+  .content :global(pre span),
+  .content :global(pre.astro-code span) {
+    color: rgba(255, 251, 253, 0.96) !important;
+    font-style: normal !important;
+  }
+  .content :global(.code-copy) {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: grid;
+    place-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 251, 253, 0.94);
+    font: inherit;
+    cursor: pointer;
+    transition: background 180ms ease, border-color 180ms ease, transform 180ms ease;
+  }
+  .content :global(.code-copy svg) {
+    width: 14px;
+    height: 14px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .content :global(.code-copy:hover) {
+    background: rgba(255, 255, 255, 0.16);
+    border-color: rgba(255, 255, 255, 0.22);
+    transform: translateY(-1px);
+  }
+  .content :global(.code-copy.is-copied) {
+    color: #b8ffcf;
+    background: rgba(76, 214, 122, 0.14);
+    border-color: rgba(76, 214, 122, 0.34);
+  }
+  .content :global(.code-copy.is-failed) {
+    color: #ffd0d0;
+    background: rgba(255, 107, 107, 0.14);
+    border-color: rgba(255, 107, 107, 0.34);
+  }
+  .content :global(table) {
+    width: 100%;
+    margin: 1.4rem 0;
+    border-collapse: separate;
+    border-spacing: 0;
+    overflow: hidden;
+    border-radius: 22px;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.38), rgba(255, 255, 255, 0.16)),
+      rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.38),
+      0 12px 28px rgba(192, 81, 116, 0.07);
+  }
+  .content :global(thead) {
+    background: rgba(255, 255, 255, 0.28);
+  }
+  .content :global(th),
+  .content :global(td) {
+    padding: 14px 16px;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+  }
+  .content :global(th) {
+    font-weight: 600;
+    color: var(--text);
+  }
+  .content :global(td) {
+    color: var(--muted);
+  }
+  .content :global(tbody tr:last-child td) {
+    border-bottom: 0;
+  }
+  .content :global(tbody tr:nth-child(even)) {
+    background: rgba(255, 255, 255, 0.08);
+  }
+  :global(html[data-resolved-theme="dark"] .content p code),
+  :global(html[data-resolved-theme="dark"] .content li code),
+  :global(html[data-resolved-theme="dark"] .content blockquote code) {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #ffd6e1;
+  }
+  :global(html[data-resolved-theme="dark"] .content pre),
+  :global(html[data-resolved-theme="dark"] .content pre.astro-code) {
+    background:
+      linear-gradient(180deg, rgba(34, 39, 48, 0.96), rgba(21, 25, 32, 0.96)),
+      rgba(18, 22, 28, 0.9) !important;
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.06),
+      0 14px 32px rgba(0, 0, 0, 0.18);
+  }
+  :global(html[data-resolved-theme="dark"] .content .code-copy) {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.12);
+    color: rgba(237, 241, 245, 0.94);
+  }
+  :global(html[data-resolved-theme="dark"] .content .code-copy:hover) {
+    background: rgba(255, 255, 255, 0.14);
+    border-color: rgba(255, 255, 255, 0.18);
+  }
+  :global(html[data-resolved-theme="dark"] .content table) {
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02)),
+      rgba(24, 28, 35, 0.72);
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.06),
+      0 14px 32px rgba(0, 0, 0, 0.16);
+  }
+  :global(html[data-resolved-theme="dark"] .content thead) {
+    background: rgba(255, 255, 255, 0.05);
+  }
+  :global(html[data-resolved-theme="dark"] .content th),
+  :global(html[data-resolved-theme="dark"] .content td) {
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+  }
+  :global(html[data-resolved-theme="dark"] .content tbody tr:nth-child(even)) {
+    background: rgba(255, 255, 255, 0.03);
+  }
+  .content :global(h2),
+  .content :global(h3) {
+    scroll-margin-top: 110px;
+  }
+  .content :global(img) {
+    margin: 1.2rem 0;
+    border-radius: 22px;
+  }
+  .content :global(.zoomable-image) {
+    cursor: zoom-in;
+  }
+  .side-card {
+    padding: 22px;
+    border-radius: 24px;
+    position: sticky;
+    top: 98px;
+  }
+  .toc-card {
+    grid-column: 2;
+  }
+  .side-card h2 {
+    margin: 0 0 12px;
+    font-size: 1rem;
+  }
+  .toc {
+    display: grid;
+    gap: 10px;
+  }
+  .toc a {
+    color: var(--muted);
+    line-height: 1.5;
+    padding: 8px 10px;
+    border-radius: 14px;
+    transition: color 180ms ease, background 180ms ease;
+  }
+  .toc a:hover {
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.12);
+  }
+  .toc a.is-active {
+    color: var(--accent-strong);
+    background: rgba(232, 93, 142, 0.1);
+  }
+  .toc .depth-3 {
+    padding-left: 24px;
+    font-size: 0.94rem;
+  }
+  .lightbox {
+    position: fixed;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    background: rgba(8, 10, 14, 0.82);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 180ms ease;
+    z-index: 40;
+  }
+  .lightbox.is-open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .lightbox img {
+    max-width: min(92vw, 1200px);
+    max-height: 86vh;
+    border-radius: 18px;
+  }
+  .lightbox-close,
+  .lightbox-nav {
+    position: absolute;
+    border: 0;
+    background: rgba(255, 255, 255, 0.16);
+    color: white;
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 1.4rem;
+  }
+  .lightbox-close {
+    top: 18px;
+    right: 18px;
+  }
+  .lightbox-nav.prev {
+    left: 18px;
+  }
+  .lightbox-nav.next {
+    right: 18px;
+  }
+  .content :global(.embed-shell) {
+    position: relative;
+    width: 100%;
+    padding-top: 56.25%;
+    margin: 1.2rem 0;
+    overflow: hidden;
+    border-radius: 22px;
+  }
+  .content :global(.bilibili-embed) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+  @media (max-width: 720px) {
+    .post-shell {
+      grid-template-columns: 1fr;
+    }
+    .post {
+      padding: 22px;
+      border-radius: 22px;
+    }
+    .post-cover {
+      margin: -22px -22px 18px;
+      border-radius: 22px 22px 18px 18px;
+      aspect-ratio: 16 / 10.5;
+    }
+    .content :global(pre) {
+      margin-inline: -2px;
+      padding: 46px 16px 16px;
+      border-radius: 18px;
+    }
+    .content :global(table) {
+      display: block;
+      overflow-x: auto;
+      border-radius: 18px;
+      -webkit-overflow-scrolling: touch;
+    }
+    .content :global(th),
+    .content :global(td) {
+      min-width: 140px;
+      padding: 12px 14px;
+    }
+    .side-card {
+      position: static;
+    }
+    .toc-card {
+      grid-column: auto;
+    }
+    .lightbox-nav {
+      bottom: 18px;
+      top: auto;
+    }
+    .lightbox-nav.prev {
+      left: calc(50% - 56px);
+    }
+    .lightbox-nav.next {
+      right: calc(50% - 56px);
+    }
+  }
+</style>

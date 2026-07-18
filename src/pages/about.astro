@@ -1,0 +1,27 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="关于">
+  <div class="content-wrap">
+    <section class="glass about">
+      <h1>关于 Yunmo</h1>
+      <p class="muted">
+        这是一个轻盈、通透、偏东方气质的 Astro 主题，现在已经补上文章目录、分享、图片灯箱、友链卡片和更完整的 SEO 基础设施。
+      </p>
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  .about {
+    padding: 30px;
+    border-radius: 36px;
+  }
+  @media (max-width: 720px) {
+    .about {
+      padding: 22px;
+      border-radius: 22px;
+    }
+  }
+</style>

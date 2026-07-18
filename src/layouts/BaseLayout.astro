@@ -1,0 +1,314 @@
+---
+import Header from "../components/Header.astro";
+import { siteConfig } from "../config/site";
+import { getSiteBase, toAbsoluteUrl } from "../utils/site";
+import "../styles/global.css";
+
+const {
+  title = siteConfig.title,
+  description = siteConfig.description,
+  image = siteConfig.ogImage,
+  type = "website",
+  noindex = false,
+  jsonLd,
+  share = true
+} = Astro.props;
+
+const siteBase = getSiteBase(Astro.site);
+const pageTitle = title === siteConfig.title ? title : `${title} | ${siteConfig.name}`;
+const canonical = toAbsoluteUrl(Astro.url.pathname, siteBase);
+const socialImage = toAbsoluteUrl(image, siteBase);
+const shareTitle = encodeURIComponent(title);
+const shareUrl = encodeURIComponent(canonical);
+const shareSummary = encodeURIComponent(description);
+---
+
+<!doctype html>
+<html lang="zh-CN" style={`--site-bg-image: url("${siteConfig.backgroundImage}")`}>
+  <head>
+    <script is:inline>
+      (() => {
+        const root = document.documentElement;
+        const media = window.matchMedia("(prefers-color-scheme: dark)");
+        const getResolvedTheme = (theme) => {
+          if (theme === "light" || theme === "dark") return theme;
+          return media.matches ? "dark" : "light";
+        };
+        const syncTheme = () => {
+          const savedTheme = localStorage.getItem("theme");
+          const theme = savedTheme === "light" || savedTheme === "dark" || savedTheme === "system" ? savedTheme : "system";
+          root.dataset.theme = theme;
+          root.dataset.resolvedTheme = getResolvedTheme(theme);
+          root.style.colorScheme = root.dataset.resolvedTheme;
+        };
+        window.__yunmoSyncTheme = syncTheme;
+        syncTheme();
+        media.addEventListener("change", () => {
+          if ((localStorage.getItem("theme") ?? "system") === "system") {
+            syncTheme();
+          }
+        });
+      })();
+    </script>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/svg+xml" href={siteConfig.favicon} />
+    <link id="canonical-link" rel="canonical" href={canonical} />
+    <meta name="generator" content={Astro.generator} />
+    <meta property="og:site_name" content={siteConfig.name} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content={type} />
+    <meta id="og-url-meta" property="og:url" content={canonical} />
+    <meta property="og:image" content={socialImage} />
+    <meta property="og:locale" content={siteConfig.locale} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={socialImage} />
+    {noindex && <meta name="robots" content="noindex,nofollow" />}
+    <script id="jsonld-site" type="application/ld+json" set:html={JSON.stringify(jsonLd ?? {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      name: siteConfig.name,
+      url: siteBase,
+      description: siteConfig.description
+    })} />
+  </head>
+  <body data-share-title={title} data-share-summary={description}>
+    <Header />
+    <main class="shell page">
+      <slot />
+    </main>
+    {share && (
+      <div class="share-float" id="share-float">
+        <button class="share-trigger glass" id="share-trigger" type="button" aria-label="打开分享面板">
+          <svg class="share-trigger-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M7 17 17 7" />
+            <path d="M9 7h8v8" />
+          </svg>
+        </button>
+        <div class="glass share-popover" id="share-popover" hidden>
+          <div class="share-popover-head">
+            <strong>分享</strong>
+          </div>
+          <div class="share-actions">
+            <button type="button" data-copy-link={canonical}>复制链接</button>
+            <a href={`https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=${shareUrl}&title=${shareTitle}&summary=${shareSummary}`} target="_blank" rel="noopener noreferrer">QQ 分享</a>
+            <a href={`https://service.weibo.com/share/share.php?url=${shareUrl}&title=${shareTitle}`} target="_blank" rel="noopener noreferrer">微博分享</a>
+            <button type="button" id="wechat-toggle">微信扫码</button>
+          </div>
+          <div class="wechat-share" id="wechat-share">
+            <strong>微信扫码</strong>
+            <img
+              src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${shareUrl}`}
+              alt="微信二维码分享"
+              width="140"
+              height="140"
+              loading="lazy"
+            />
+          </div>
+        </div>
+      </div>
+    )}
+    <button class="back-to-top glass" id="back-to-top" type="button" aria-label="回到顶部">
+      <span class="back-to-top-icon" aria-hidden="true"></span>
+    </button>
+    <script is:inline src="/scripts/site-ui.js"></script>
+  </body>
+</html>
+
+<style>
+  .page {
+    padding: 26px 0 40px;
+  }
+  @media (max-width: 720px) {
+    .page {
+      padding: 18px 0 28px;
+    }
+  }
+  .back-to-top {
+    position: fixed;
+    right: 22px;
+    bottom: 22px;
+    width: 48px;
+    height: 48px;
+    border: 0;
+    border-radius: 999px;
+    cursor: pointer;
+    color: var(--text);
+    opacity: 1;
+    pointer-events: auto;
+    transform: none;
+    display: grid;
+    place-items: center;
+    touch-action: manipulation;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.78), rgba(255, 255, 255, 0.32)),
+      rgba(255, 255, 255, 0.26);
+    border: 1px solid rgba(255, 255, 255, 0.58);
+    box-shadow:
+      0 10px 24px rgba(30, 41, 59, 0.12),
+      inset 0 1px 0 rgba(255, 255, 255, 0.72),
+      inset 0 -10px 20px rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(22px) saturate(160%);
+    -webkit-backdrop-filter: blur(22px) saturate(160%);
+    z-index: 60;
+  }
+  html[data-resolved-theme="dark"] .back-to-top {
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04)),
+      rgba(26, 30, 38, 0.44);
+    border-color: rgba(255, 255, 255, 0.14);
+    box-shadow:
+      0 12px 28px rgba(0, 0, 0, 0.24),
+      inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  }
+  .back-to-top:hover {
+    transform: translateY(-1px) scale(1.02);
+  }
+  .back-to-top-icon {
+    display: block;
+    width: 11px;
+    height: 11px;
+    border-top: 1.8px solid currentColor;
+    border-left: 1.8px solid currentColor;
+    transform: translateY(3px) rotate(45deg);
+    opacity: 0.9;
+  }
+  .share-float {
+    position: fixed;
+    right: 22px;
+    bottom: 82px;
+    z-index: 60;
+  }
+  .share-trigger {
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    color: var(--text);
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.78), rgba(255, 255, 255, 0.32)),
+      rgba(255, 255, 255, 0.26);
+    border: 1px solid rgba(255, 255, 255, 0.58);
+    box-shadow:
+      0 10px 24px rgba(30, 41, 59, 0.12),
+      inset 0 1px 0 rgba(255, 255, 255, 0.72),
+      inset 0 -10px 20px rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(22px) saturate(160%);
+    -webkit-backdrop-filter: blur(22px) saturate(160%);
+    transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+  }
+  html[data-resolved-theme="dark"] .share-trigger {
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04)),
+      rgba(26, 30, 38, 0.44);
+    border-color: rgba(255, 255, 255, 0.14);
+    box-shadow:
+      0 12px 28px rgba(0, 0, 0, 0.24),
+      inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  }
+  .share-trigger:hover {
+    transform: translateY(-1px) scale(1.02);
+  }
+  .share-trigger-icon {
+    display: block;
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: 0.92;
+  }
+  .share-popover {
+    position: absolute;
+    right: 0;
+    bottom: 62px;
+    width: min(248px, calc(100vw - 32px));
+    padding: 14px;
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+  }
+  .share-popover-head {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    padding: 2px 2px 0;
+  }
+  .share-popover-head strong {
+    font-size: 0.92rem;
+    font-weight: 600;
+  }
+  .share-actions {
+    display: grid;
+    gap: 10px;
+  }
+  .share-actions a,
+  .share-actions button {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 42px;
+    padding: 0 14px;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(255, 255, 255, 0.12);
+    color: var(--text);
+    font: inherit;
+    cursor: pointer;
+    transition: background 180ms ease, border-color 180ms ease, transform 180ms ease;
+  }
+  .share-actions a:hover,
+  .share-actions button:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.22);
+    transform: translateY(-1px);
+  }
+  .wechat-share {
+    display: none;
+    margin-top: 14px;
+    gap: 8px;
+    justify-items: center;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  .wechat-share.is-open {
+    display: grid;
+  }
+  .wechat-share strong {
+    font-size: 0.84rem;
+    color: var(--muted);
+    font-weight: 600;
+  }
+  .wechat-share img {
+    width: 128px;
+    height: 128px;
+    border-radius: 16px;
+    background: white;
+    padding: 7px;
+  }
+  @media (max-width: 720px) {
+    .share-float {
+      right: 14px;
+      bottom: 76px;
+    }
+    .share-popover {
+      width: min(232px, calc(100vw - 24px));
+      bottom: 60px;
+      padding: 12px;
+    }
+    .back-to-top {
+      right: 14px;
+      bottom: 18px;
+    }
+  }
+</style>
