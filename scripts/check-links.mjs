@@ -7,6 +7,7 @@ const checked = new Map();
 const REQUEST_TIMEOUT_MS = 12000;
 const CONCURRENCY = 4;
 const SKIP_HOSTS = new Set([
+  "github.com",
   "sns.qzone.qq.com",
   "service.weibo.com"
 ]);

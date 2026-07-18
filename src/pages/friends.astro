@@ -1,8 +1,7 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { buildFriendCardsHtml } from "../data/friends";
-
-const cardsHtml = buildFriendCardsHtml();
+import FriendCard from "../components/FriendCard.astro";
+import { friends } from "../data/friends";
 ---
 
 <BaseLayout title="友链">
@@ -12,10 +11,14 @@ const cardsHtml = buildFriendCardsHtml();
         <h1>友链</h1>
         <p class="muted">从数据列表自动渲染，头像加载失败会自动回退。</p>
       </div>
-      <div class="friend-grid" set:html={cardsHtml}></div>
+      <div class="friend-grid">
+        {friends.map((friend) => <FriendCard friend={friend} />)}
+      </div>
     </section>
   </div>
 </BaseLayout>
+
+<script is:inline src="/scripts/friends-ui.js"></script>
 
 <style is:global>
   .friends {

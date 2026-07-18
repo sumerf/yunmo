@@ -4,7 +4,7 @@ const { posts = [] } = Astro.props;
 
 <div class="timeline">
   {posts.map((post) => (
-    <a class="item" href={`/posts/${post.slug}/`}>
+    <a class="item" href={`/posts/${post.id}/`}>
       <time class="date">{post.data.pubDate.toLocaleDateString("zh-CN")}</time>
       <span class="dot" aria-hidden="true"></span>
       <div class="content">

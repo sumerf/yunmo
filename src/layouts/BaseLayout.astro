@@ -26,30 +26,7 @@ const shareSummary = encodeURIComponent(description);
 <!doctype html>
 <html lang="zh-CN" style={`--site-bg-image: url("${siteConfig.backgroundImage}")`}>
   <head>
-    <script is:inline>
-      (() => {
-        const root = document.documentElement;
-        const media = window.matchMedia("(prefers-color-scheme: dark)");
-        const getResolvedTheme = (theme) => {
-          if (theme === "light" || theme === "dark") return theme;
-          return media.matches ? "dark" : "light";
-        };
-        const syncTheme = () => {
-          const savedTheme = localStorage.getItem("theme");
-          const theme = savedTheme === "light" || savedTheme === "dark" || savedTheme === "system" ? savedTheme : "system";
-          root.dataset.theme = theme;
-          root.dataset.resolvedTheme = getResolvedTheme(theme);
-          root.style.colorScheme = root.dataset.resolvedTheme;
-        };
-        window.__yunmoSyncTheme = syncTheme;
-        syncTheme();
-        media.addEventListener("change", () => {
-          if ((localStorage.getItem("theme") ?? "system") === "system") {
-            syncTheme();
-          }
-        });
-      })();
-    </script>
+    <script is:inline src="/scripts/theme-init.js"></script>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{pageTitle}</title>

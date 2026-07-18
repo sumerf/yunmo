@@ -18,7 +18,7 @@ Yunmo 是一个基于 Astro 的轻盈博客主题，整体风格偏干净、通�
 
 ## 技术栈
 
-- Astro 5
+- Astro 5.11+
 - TypeScript
 - 原生 CSS
 
@@ -97,6 +97,12 @@ npm run indexnow
 - 如果部署环境提供域名变量，`sitemap` 会自动生成
 - 如果没有提供域名变量，站点依然可以正常构建和访问
 - 页面运行时分享链接、二维码与部分 SEO 地址会按当前访问域名自适应
+
+## 版本兼容说明
+
+- 当前项目依赖版本为 `astro@^5.11.0`
+- 内容集合配置已迁移为 `src/content.config.ts`，避免旧版 `src/content/config.ts` 在新环境校验时报错
+- GitHub Actions 当前使用 Node.js 22，并已通过 `npm run verify`
 
 ## 项目结构
 

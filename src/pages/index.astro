@@ -13,7 +13,12 @@ const quoteMode = siteConfig.homeQuote.mode === "local" ? "local" : "api";
 
 <BaseLayout title={siteConfig.title}>
   <div class="posts-wrap">
-    <section class="hero glass">
+    <section
+      class="hero glass"
+      id="home-quote"
+      data-quote-mode={quoteMode}
+      data-quote-api={siteConfig.homeQuote.api}
+    >
       <p class="eyebrow">
         <a href="https://github.com/sumerf/yunmo" target="_blank" rel="noopener noreferrer">Yunmo</a>
       </p>
@@ -29,39 +34,7 @@ const quoteMode = siteConfig.homeQuote.mode === "local" ? "local" : "api";
   </div>
 </BaseLayout>
 
-<script is:inline define:vars={{ quoteMode, quoteApi: siteConfig.homeQuote.api }}>
-  const quoteTextEl = document.getElementById("quote-text");
-  const quoteAuthorEl = document.getElementById("quote-author");
-
-  const normalizeAuthor = (fromWho, from) => {
-    const author = fromWho || from || "一言";
-    return author.startsWith("——") ? author : `—— ${author}`;
-  };
-
-  if (quoteMode === "api") {
-    fetch(quoteApi, {
-      headers: {
-        Accept: "application/json"
-      }
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`Quote API request failed: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then((data) => {
-        if (!data?.hitokoto) return;
-        if (quoteTextEl) quoteTextEl.textContent = data.hitokoto;
-        if (quoteAuthorEl) quoteAuthorEl.textContent = normalizeAuthor(data.from_who, data.from);
-      })
-      .catch(() => {
-        // Leave the area empty when the API is unavailable.
-      });
-  } else if (quoteAuthorEl?.textContent) {
-    quoteAuthorEl.textContent = normalizeAuthor(quoteAuthorEl.textContent, "");
-  }
-</script>
+<script is:inline src="/scripts/home-quote.js"></script>
 
 <style>
   .posts-wrap {

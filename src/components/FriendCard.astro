@@ -1,0 +1,23 @@
+---
+import { createFriendFallbackAvatar } from "../utils/friends";
+
+const { friend } = Astro.props;
+const fallbackAvatar = createFriendFallbackAvatar(friend.name);
+---
+
+<a class="friend-card" href={friend.url} target="_blank" rel="noopener noreferrer">
+  <span class="friend-avatar">
+    <img
+      src={friend.avatar}
+      alt={friend.name}
+      width="56"
+      height="56"
+      loading="lazy"
+      data-fallback={fallbackAvatar}
+    />
+  </span>
+  <div class="friend-copy">
+    <strong>{friend.name}</strong>
+    <span>{friend.description}</span>
+  </div>
+</a>

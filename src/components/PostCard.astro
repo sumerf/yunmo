@@ -1,5 +1,6 @@
 ---
 const { post } = Astro.props;
+const postUrl = `/posts/${post.id}/`;
 ---
 
 <article class="card glass">
@@ -12,12 +13,12 @@ const { post } = Astro.props;
         ))}
       </div>
     </div>
-    <h2><a href={`/posts/${post.slug}/`}>{post.data.title}</a></h2>
+    <h2><a href={postUrl}>{post.data.title}</a></h2>
     <p>{post.data.description}</p>
-    <a class="read-more" href={`/posts/${post.slug}/`}>继续阅读</a>
+    <a class="read-more" href={postUrl}>继续阅读</a>
   </div>
   {post.data.heroImage && (
-    <a class="cover" href={`/posts/${post.slug}/`} aria-label={`打开 ${post.data.title}`}>
+    <a class="cover" href={postUrl} aria-label={`打开 ${post.data.title}`}>
       <img src={post.data.heroImage} alt={post.data.title} loading="lazy" />
     </a>
   )}
